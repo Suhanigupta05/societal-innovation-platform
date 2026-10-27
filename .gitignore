@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.db
+uploads/*
+!uploads/.gitkeep
+tunnel.log
+cloudflared.exe
+start_shared.ps1
+.env

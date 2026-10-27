@@ -94,7 +94,7 @@
         <span class="text-indigo-800">NLP Domain Classifier (TF-IDF + Calibrated Logistic Regression) • Cosine Duplicate Detection • Multi-Criteria University Matching</span>
       </div>
       <div class="flex items-center space-x-3 text-slate-600">
-        <span><i class="fa-solid fa-map-location-dot text-indigo-600 mr-1"></i>Focus: Jharkhand Districts</span>
+        <span><i class="fa-solid fa-map-location-dot text-indigo-600 mr-1"></i>Coverage: Nationwide India (28 States & 8 UTs)</span>
         <span class="text-slate-300">|</span>
         <span class="text-indigo-700 font-semibold cursor-pointer hover:underline" onclick="switchTab('viva')"><i class="fa-solid fa-bolt mr-1"></i>Live AI Explainer Ready</span>
       </div>
@@ -276,26 +276,34 @@
               <textarea id="p-description" rows="4" required placeholder="Describe the ground reality: What is happening? Who is affected? What are the immediate risks? Mention key keywords (e.g., arsenic, soil acidity, bridge damage, dropout rate)..." class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"></textarea>
             </div>
 
-            <!-- District Selection (Jharkhand Focus) -->
-            <div>
-              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">District (Jharkhand) <span class="text-red-500">*</span></label>
-              <select id="p-district" required class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
-                <option value="Ranchi">Ranchi</option>
-                <option value="Palamu">Palamu</option>
-                <option value="Dhanbad">Dhanbad</option>
-                <option value="East Singhbhum">East Singhbhum (Jamshedpur)</option>
-                <option value="Bokaro">Bokaro</option>
-                <option value="Deoghar">Deoghar</option>
-                <option value="Hazaribagh">Hazaribagh</option>
-                <option value="Khunti">Khunti</option>
-                <option value="Gumla">Gumla</option>
-                <option value="Latehar">Latehar</option>
-                <option value="Dumka">Dumka</option>
-                <option value="Sahibganj">Sahibganj</option>
-                <option value="Garhwa">Garhwa</option>
-                <option value="Simdega">Simdega</option>
-                <option value="West Singhbhum">West Singhbhum (Chaibasa)</option>
-              </select>
+            <!-- Location Selection (Nationwide India: State & District) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">State / Union Territory <span class="text-red-500">*</span></label>
+                <select id="p-state" required class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                  <option value="Jharkhand" selected>Jharkhand</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">District <span class="text-red-500">*</span></label>
+                <select id="p-district" required class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                  <option value="Ranchi">Ranchi</option>
+                  <option value="Palamu">Palamu</option>
+                  <option value="Dhanbad">Dhanbad</option>
+                  <option value="East Singhbhum">East Singhbhum (Jamshedpur)</option>
+                  <option value="Bokaro">Bokaro</option>
+                  <option value="Deoghar">Deoghar</option>
+                  <option value="Hazaribagh">Hazaribagh</option>
+                  <option value="Khunti">Khunti</option>
+                  <option value="Gumla">Gumla</option>
+                  <option value="Latehar">Latehar</option>
+                  <option value="Dumka">Dumka</option>
+                  <option value="Sahibganj">Sahibganj</option>
+                  <option value="Garhwa">Garhwa</option>
+                  <option value="Simdega">Simdega</option>
+                  <option value="West Singhbhum">West Singhbhum (Chaibasa)</option>
+                </select>
+              </div>
             </div>
 
             <!-- Locality / Block / Village -->
@@ -536,6 +544,7 @@
               <option value="health">Healthcare: Sickle Cell Anemia Screening Shortage in Deoghar</option>
               <option value="edu">Education: Girl Students Dropping Out Due to Lack of Toilets</option>
               <option value="env">Environment: Fly Ash Runoff from Power Plant Polluting Rivers</option>
+              <option value="jk">Nationwide (J&K): Flash Flood & Siltation Risk in Jhelum Basin</option>
             </select>
           </div>
 
@@ -549,10 +558,16 @@
             <textarea id="viva-desc" rows="4" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg">High fluoride levels in borewell drinking water causing dental and skeletal fluorosis among rural children in Palamu district. Need community water filtration plant.</textarea>
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">State / UT</label>
+              <select id="viva-state" class="w-full px-2 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+                <option value="Jharkhand" selected>Jharkhand</option>
+              </select>
+            </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 uppercase mb-1">District</label>
-              <select id="viva-district" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+              <select id="viva-district" class="w-full px-2 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
                 <option value="Palamu">Palamu</option>
                 <option value="Ranchi">Ranchi</option>
                 <option value="Dhanbad">Dhanbad</option>
@@ -564,7 +579,7 @@
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Reported Urgency</label>
-              <select id="viva-urgency" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+              <select id="viva-urgency" class="w-full px-2 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
                 <option value="Critical">Critical</option>
                 <option value="High">High</option>
                 <option value="Medium">Medium</option>
@@ -843,7 +858,7 @@
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
           <p class="font-bold text-slate-900 text-sm">Q1. What is the core problem statement of this project?</p>
           <p class="mt-1 text-slate-600">
-            <strong>Answer:</strong> Rural and urban communities across Jharkhand face pressing challenges (clean water, agriculture disease, healthcare access, education dropout), but lack a direct platform to connect with academic research talent and corporate funding. This platform automates the pipeline using AI: Citizens submit problems &rarr; AI categorizes, filters duplicates, and routes to suitable universities &rarr; University teams build prototypes &rarr; Industries fund via CSR.
+            <strong>Answer:</strong> Rural and urban communities across India (originating with regional focus in Jharkhand and expanded nationwide across all 28 States & 8 UTs) face pressing challenges (clean water, agriculture disease, healthcare access, education dropout), but lack a direct platform to connect with academic research talent and corporate funding. This platform automates the pipeline using AI: Citizens submit problems &rarr; AI categorizes, filters duplicates, and routes to suitable universities &rarr; University teams build prototypes &rarr; Industries fund via CSR.
           </p>
         </div>
 

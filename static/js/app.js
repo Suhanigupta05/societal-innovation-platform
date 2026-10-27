@@ -8,6 +8,7 @@
 let allProblems = [];
 let allSolutions = [];
 let allUniversities = [];
+let allLocations = [];
 let domainChartInstance = null;
 let priorityChartInstance = null;
 let vivaProbChartInstance = null;
@@ -17,41 +18,140 @@ const VIVA_PRESETS = {
   water: {
     title: "Groundwater Fluoride Contamination in Palamu",
     desc: "High fluoride levels in borewell drinking water (>3.5 mg/L) causing dental and skeletal fluorosis among rural children in Palamu district. Need community water filtration plant.",
+    state: "Jharkhand",
     district: "Palamu",
     urgency: "Critical"
   },
   agri: {
     title: "Paddy crop fungal blight outbreak in Bero block",
     desc: "Rice harvest is turning brown with fungal leaf blast. Smallholder tribal farmers face severe crop loss and debt without rapid remedy.",
+    state: "Jharkhand",
     district: "Ranchi",
     urgency: "High"
   },
   health: {
     title: "Sickle Cell Disease Diagnostic Lag in Santhal Pargana",
     desc: "Tribal children in remote villages of Deoghar and Dumka suffer chronic pain, anemia and early mortality due to delayed sickle cell screening.",
+    state: "Jharkhand",
     district: "Deoghar",
     urgency: "Critical"
   },
   edu: {
     title: "Adolescent Tribal Girl School Dropouts due to Sanitation Deficit",
     desc: "In government Kasturba Gandhi Balika Vidyalaya in Torpa block, lack of regular running water supply and broken latrines has caused an alarming 40% absentee rate during menstrual cycles.",
+    state: "Jharkhand",
     district: "Khunti",
     urgency: "High"
   },
   env: {
     title: "Thermal Fly Ash Runoff and Dust Pollution in Bokaro Periphery",
     desc: "Fly ash ponds near power generation units are overflowing into surrounding farmlands and breathing air. Heavy metals contaminating local drinking wells.",
+    state: "Jharkhand",
     district: "Bokaro",
     urgency: "High"
+  },
+  jk: {
+    title: "Flash Flood Risk and Severe Siltation in Jhelum River Catchment",
+    desc: "Early monsoon cloudburst and heavy silt accumulation threatening river embankments and low-lying apple orchards in Srinagar and Anantnag. Urgent need for automated early warning flood telemetry sensors.",
+    state: "Jammu and Kashmir",
+    district: "Srinagar",
+    urgency: "Critical"
   }
 };
 
 // Initialize Application
 document.addEventListener("DOMContentLoaded", async () => {
+  await loadLocations();
   await loadUniversities();
   await refreshDashboard();
   setupLiveInputWatcher();
 });
+
+// Nationwide Location Loader & Dynamic Linking
+async function loadLocations() {
+  try {
+    const res = await fetch("/api/locations");
+    const data = await res.json();
+    allLocations = data.states || [];
+    setupLocationSelectors();
+  } catch (err) {
+    console.error("Failed to load nationwide locations:", err);
+  }
+}
+
+function setupLocationSelectors() {
+  const pState = document.getElementById("p-state");
+  const pDistrict = document.getElementById("p-district");
+  const vivaState = document.getElementById("viva-state");
+  const vivaDistrict = document.getElementById("viva-district");
+
+  if (!pState || !allLocations.length) return;
+
+  const sortedStates = [...allLocations].sort((a, b) => a.name.localeCompare(b.name));
+
+  // Populate Citizen Form State Dropdown
+  pState.innerHTML = "";
+  sortedStates.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.name;
+    opt.textContent = `${s.name}${s.type === 'Union Territory' ? ' (UT)' : ''}`;
+    if (s.name === "Jharkhand") opt.selected = true;
+    pState.appendChild(opt);
+  });
+
+  // Populate Viva Inspector State Dropdown
+  if (vivaState) {
+    vivaState.innerHTML = "";
+    sortedStates.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s.name;
+      opt.textContent = `${s.name}${s.type === 'Union Territory' ? ' (UT)' : ''}`;
+      if (s.name === "Jharkhand") opt.selected = true;
+      vivaState.appendChild(opt);
+    });
+  }
+
+  function updateDistrictsFor(stateEl, districtEl, preferredDistrict = null) {
+    if (!stateEl || !districtEl) return;
+    const selectedState = stateEl.value;
+    const found = allLocations.find(s => s.name === selectedState);
+    districtEl.innerHTML = "";
+
+    if (found && found.districts && found.districts.length) {
+      found.districts.forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d;
+        opt.textContent = d;
+        if (preferredDistrict && d.toLowerCase() === preferredDistrict.toLowerCase()) {
+          opt.selected = true;
+        }
+        districtEl.appendChild(opt);
+      });
+    } else {
+      const opt = document.createElement("option");
+      opt.value = "General";
+      opt.textContent = "General";
+      districtEl.appendChild(opt);
+    }
+  }
+
+  pState.addEventListener("change", () => {
+    updateDistrictsFor(pState, pDistrict);
+    triggerInstantAIPreview();
+  });
+
+  if (vivaState && vivaDistrict) {
+    vivaState.addEventListener("change", () => {
+      updateDistrictsFor(vivaState, vivaDistrict);
+    });
+  }
+
+  // Set default initial districts
+  updateDistrictsFor(pState, pDistrict, "Ranchi");
+  if (vivaState && vivaDistrict) {
+    updateDistrictsFor(vivaState, vivaDistrict, "Palamu");
+  }
+}
 
 // Tab Switching
 function switchTab(tabId) {
@@ -209,7 +309,7 @@ async function loadProblems() {
           <div class="font-bold text-slate-900 truncate" title="${p.title}">${p.title}</div>
           <div class="text-[11px] text-slate-500 flex items-center space-x-1 mt-0.5">
             <i class="fa-solid fa-location-dot text-red-500"></i>
-            <span>${p.district}${p.locality ? ' • ' + p.locality : ''}</span>
+            <span>${p.district}${p.state ? ', ' + p.state : ''}${p.locality ? ' • ' + p.locality : ''}</span>
           </div>
         </td>
         <td class="px-4 py-3">
@@ -285,6 +385,7 @@ function setupLiveInputWatcher() {
 async function triggerInstantAIPreview() {
   const title = document.getElementById("p-title").value || "Societal Issue";
   const desc = document.getElementById("p-description").value;
+  const state = document.getElementById("p-state") ? document.getElementById("p-state").value : "Jharkhand";
   const district = document.getElementById("p-district").value;
   const urgency = document.getElementById("p-urgency").value;
   const impact = document.getElementById("p-impact").value;
@@ -298,6 +399,7 @@ async function triggerInstantAIPreview() {
       body: JSON.stringify({
         title: title,
         description: desc,
+        state: state,
         district: district,
         urgency: urgency,
         impact: impact
@@ -344,6 +446,7 @@ async function submitCitizenProblem(e) {
     const formData = new FormData();
     formData.append("title", document.getElementById("p-title").value);
     formData.append("description", document.getElementById("p-description").value);
+    formData.append("state", document.getElementById("p-state") ? document.getElementById("p-state").value : "Jharkhand");
     formData.append("district", document.getElementById("p-district").value);
     formData.append("locality", document.getElementById("p-locality").value);
     formData.append("citizen_name", document.getElementById("p-name").value);
@@ -435,7 +538,7 @@ async function renderUniversityPortal() {
         item.className = "p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white hover:border-sky-300 transition shadow-sm space-y-2";
         item.innerHTML = `
           <div class="flex items-center justify-between">
-            <span class="text-[10px] font-mono font-bold text-slate-500">${p.id} • ${p.district}</span>
+            <span class="text-[10px] font-mono font-bold text-slate-500">${p.id} • ${p.district}${p.state ? ', ' + p.state : ''}</span>
             <span class="px-2 py-0.5 text-[10px] font-bold rounded ${getPriorityBadgeClass(p.priority_level)}">${p.priority_level}</span>
           </div>
           <h4 class="font-bold text-slate-900 text-xs leading-snug">${p.title}</h4>
@@ -612,7 +715,27 @@ function loadVivaPreset() {
   if (preset) {
     document.getElementById("viva-title").value = preset.title;
     document.getElementById("viva-desc").value = preset.desc;
-    document.getElementById("viva-district").value = preset.district;
+
+    const vivaState = document.getElementById("viva-state");
+    const vivaDistrict = document.getElementById("viva-district");
+    if (vivaState && preset.state) {
+      vivaState.value = preset.state;
+      // Populate districts for this state
+      const found = allLocations.find(s => s.name === preset.state);
+      if (found && found.districts && vivaDistrict) {
+        vivaDistrict.innerHTML = "";
+        found.districts.forEach(d => {
+          const opt = document.createElement("option");
+          opt.value = d;
+          opt.textContent = d;
+          if (d.toLowerCase() === preset.district.toLowerCase()) opt.selected = true;
+          vivaDistrict.appendChild(opt);
+        });
+      }
+    } else if (vivaDistrict) {
+      vivaDistrict.value = preset.district;
+    }
+
     document.getElementById("viva-urgency").value = preset.urgency;
     executeVivaAIInspection();
   }
@@ -621,6 +744,7 @@ function loadVivaPreset() {
 async function executeVivaAIInspection() {
   const title = document.getElementById("viva-title").value;
   const desc = document.getElementById("viva-desc").value;
+  const state = document.getElementById("viva-state") ? document.getElementById("viva-state").value : "Jharkhand";
   const district = document.getElementById("viva-district").value;
   const urgency = document.getElementById("viva-urgency").value;
 
@@ -631,6 +755,7 @@ async function executeVivaAIInspection() {
       body: JSON.stringify({
         title: title,
         description: desc,
+        state: state,
         district: district,
         urgency: urgency,
         impact: "Community"
@@ -679,7 +804,7 @@ async function executeVivaAIInspection() {
         row.innerHTML = `
           <div>
             <span class="font-bold text-slate-800">${m.problem_id}</span>: ${m.title}
-            <span class="text-[10px] text-slate-500 block">District: ${m.district || 'General'}</span>
+            <span class="text-[10px] text-slate-500 block">Location: ${m.district || 'General'}${m.state ? ', ' + m.state : ''}</span>
           </div>
           <span class="px-2 py-0.5 font-bold rounded text-xs ${m.similarity >= 65 ? 'bg-red-100 text-red-700' : 'bg-sky-100 text-sky-700'}">
             ${m.similarity}% (${m.type})
@@ -769,7 +894,7 @@ async function openProblemModal(problemId) {
     document.getElementById("modal-p-id").innerText = p.id;
     document.getElementById("modal-p-domain").innerText = p.predicted_domain;
     document.getElementById("modal-p-title").innerText = p.title;
-    document.getElementById("modal-p-location").innerHTML = `<i class="fa-solid fa-location-dot mr-1 text-red-500"></i>${p.district}${p.locality ? ' • ' + p.locality : ''}`;
+    document.getElementById("modal-p-location").innerHTML = `<i class="fa-solid fa-location-dot mr-1 text-red-500"></i>${p.district}${p.state ? ', ' + p.state : ''}${p.locality ? ' • ' + p.locality : ''}`;
     document.getElementById("modal-p-desc").innerText = p.description;
 
     document.getElementById("modal-p-category-val").innerText = p.predicted_domain;

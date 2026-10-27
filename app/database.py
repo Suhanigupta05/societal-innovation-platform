@@ -17,7 +17,7 @@ def get_db_connection():
     return conn
 
 def init_db():
-    """Create all required tables for the platform."""
+    """Create all required tables for the platform with safe backward-compatible migration."""
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -27,6 +27,7 @@ def init_db():
         id TEXT PRIMARY KEY,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
+        state TEXT DEFAULT 'Jharkhand',
         district TEXT NOT NULL,
         locality TEXT,
         citizen_name TEXT,
@@ -46,6 +47,13 @@ def init_db():
         created_at TEXT
     )
     """)
+
+    # Backward-compatible database migration: ensure 'state' column exists on existing databases
+    cursor.execute("PRAGMA table_info(problems)")
+    columns = [row[1] for row in cursor.fetchall()]
+    if "state" not in columns:
+        cursor.execute("ALTER TABLE problems ADD COLUMN state TEXT DEFAULT 'Jharkhand'")
+        cursor.execute("UPDATE problems SET state = 'Jharkhand' WHERE state IS NULL OR state = ''")
 
     # Solutions / University Projects Table
     cursor.execute("""
@@ -94,15 +102,16 @@ def insert_problem(p: Dict[str, Any]) -> str:
 
     cursor.execute("""
     INSERT INTO problems (
-        id, title, description, district, locality, citizen_name, citizen_contact,
+        id, title, description, state, district, locality, citizen_name, citizen_contact,
         evidence_media, predicted_domain, ai_confidence, priority_level, priority_score,
         priority_factors, all_probabilities, matched_universities, duplicate_flags,
         status, assigned_university_id, assigned_university_name, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         p["id"],
         p["title"],
         p["description"],
+        p.get("state", "Jharkhand"),
         p.get("district", "General"),
         p.get("locality", ""),
         p.get("citizen_name", "Anonymous Citizen"),
@@ -126,7 +135,7 @@ def insert_problem(p: Dict[str, Any]) -> str:
     conn.close()
     return p["id"]
 
-def get_all_problems(domain: Optional[str] = None, status: Optional[str] = None) -> List[Dict[str, Any]]:
+def get_all_problems(domain: Optional[str] = None, status: Optional[str] = None, state: Optional[str] = None) -> List[Dict[str, Any]]:
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -139,6 +148,9 @@ def get_all_problems(domain: Optional[str] = None, status: Optional[str] = None)
     if status and status != "All":
         query += " AND status = ?"
         params.append(status)
+    if state and state != "All":
+        query += " AND state = ?"
+        params.append(state)
 
     query += " ORDER BY created_at DESC"
 
@@ -149,6 +161,8 @@ def get_all_problems(domain: Optional[str] = None, status: Optional[str] = None)
     result = []
     for r in rows:
         item = dict(r)
+        if not item.get("state"):
+            item["state"] = "Jharkhand"
         item["priority_factors"] = json.loads(item["priority_factors"]) if item["priority_factors"] else []
         item["all_probabilities"] = json.loads(item["all_probabilities"]) if item["all_probabilities"] else []
         item["matched_universities"] = json.loads(item["matched_universities"]) if item["matched_universities"] else []
@@ -167,6 +181,8 @@ def get_problem_by_id(problem_id: str) -> Optional[Dict[str, Any]]:
         return None
 
     item = dict(row)
+    if not item.get("state"):
+        item["state"] = "Jharkhand"
     item["priority_factors"] = json.loads(item["priority_factors"]) if item["priority_factors"] else []
     item["all_probabilities"] = json.loads(item["all_probabilities"]) if item["all_probabilities"] else []
     item["matched_universities"] = json.loads(item["matched_universities"]) if item["matched_universities"] else []
@@ -235,7 +251,7 @@ def get_solutions_by_problem(problem_id: str) -> List[Dict[str, Any]]:
 def get_all_solutions() -> List[Dict[str, Any]]:
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT s.*, p.title as problem_title, p.district, p.predicted_domain FROM solutions s JOIN problems p ON s.problem_id = p.id ORDER BY s.id DESC")
+    cursor.execute("SELECT s.*, p.title as problem_title, p.state, p.district, p.predicted_domain FROM solutions s JOIN problems p ON s.problem_id = p.id ORDER BY s.id DESC")
     rows = cursor.fetchall()
     conn.close()
 

@@ -143,6 +143,7 @@ class SocietalAIEngine:
                     "problem_id": matched_p.get("id"),
                     "title": matched_p.get("title"),
                     "category": matched_p.get("domain", matched_p.get("category")),
+                    "state": matched_p.get("state", "Jharkhand"),
                     "district": matched_p.get("district"),
                     "similarity": similarity_pct,
                     "type": status_label
@@ -158,12 +159,12 @@ class SocietalAIEngine:
             "matches": matches[:5]
         }
 
-    def match_universities(self, text: str, domain: str, district: str = None) -> List[Dict[str, Any]]:
+    def match_universities(self, text: str, domain: str, district: str = None, state: str = None) -> List[Dict[str, Any]]:
         """
         Multi-criteria institutional recommendation:
         1. Domain alignment score (45%)
         2. Keyword & research semantic match (40%)
-        3. Regional proximity to affected district (15%)
+        3. Regional proximity to affected district/state (15%)
         """
         cleaned = self.clean_text(text)
         words = set(cleaned.split())
@@ -187,15 +188,30 @@ class SocietalAIEngine:
                 keyword_score = 15.0
 
             # Geographic proximity score
+            uni_state = uni.get("state", "Jharkhand")
             district_match = False
-            if district and district.strip():
+            state_match = False
+
+            if state and state.strip():
+                state_match = (state.strip().lower() == uni_state.lower())
+            else:
+                # If state not provided (legacy call), treat as regional if district matches or fallback
+                state_match = True
+
+            if district and district.strip() and state_match:
                 dist_clean = district.strip().lower()
-                for d in uni["districts"]:
+                for d in uni.get("districts", []):
                     if dist_clean in d.lower() or d.lower() in dist_clean:
                         district_match = True
                         break
 
-            geo_score = 100.0 if district_match else 40.0
+            if district_match:
+                geo_score = 100.0
+            elif state_match:
+                geo_score = 60.0
+            else:
+                # Nationwide remote partner: honest cross-state alignment score
+                geo_score = 25.0
 
             # Composite weighted match score
             composite = (domain_score * 0.45) + (keyword_score * 0.40) + (geo_score * 0.15)
@@ -208,6 +224,10 @@ class SocietalAIEngine:
                 rationale.append(f"Specialized in {', '.join(keyword_hits[:3])}")
             if district_match:
                 rationale.append(f"Active presence in {district}")
+            elif state_match:
+                rationale.append(f"Regional state presence ({uni_state})")
+            else:
+                rationale.append(f"National research partner (Remote alignment; based in {uni_state})")
 
             ranked_universities.append({
                 "university_id": uni["id"],
@@ -294,6 +314,7 @@ class SocietalAIEngine:
         }
 
     def full_problem_analysis(self, title: str, description: str, district: str = "",
+                              state: str = "Jharkhand",
                               reported_urgency: str = "Medium", population_impact: str = "Community",
                               existing_problems: List[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -311,7 +332,7 @@ class SocietalAIEngine:
         dup_res = self.detect_duplicates(full_text, existing_problems)
 
         # 3. AI University Recommendation
-        uni_matches = self.match_universities(full_text, predicted_domain, district)
+        uni_matches = self.match_universities(full_text, predicted_domain, district=district, state=state)
 
         # 4. Priority Calculation
         priority_res = self.calculate_priority(

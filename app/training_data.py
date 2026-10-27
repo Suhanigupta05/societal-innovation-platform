@@ -98,6 +98,7 @@ UNIVERSITIES = [
     {
         "id": "u1",
         "name": "Birsa Agricultural University (BAU), Ranchi",
+        "state": "Jharkhand",
         "primary_domains": ["Agriculture", "Water Management", "Rural Livelihoods"],
         "expertise_keywords": [
             "soil", "crop", "seeds", "irrigation", "farming", "pesticides",
@@ -110,6 +111,7 @@ UNIVERSITIES = [
     {
         "id": "u2",
         "name": "IIT (Indian School of Mines), Dhanbad",
+        "state": "Jharkhand",
         "primary_domains": ["Water Management", "Environment", "Urban Infrastructure", "Public Safety"],
         "expertise_keywords": [
             "groundwater", "hydrology", "water contamination", "fluoride", "arsenic",
@@ -122,6 +124,7 @@ UNIVERSITIES = [
     {
         "id": "u3",
         "name": "Birla Institute of Technology (BIT) Mesra, Ranchi",
+        "state": "Jharkhand",
         "primary_domains": ["Urban Infrastructure", "Healthcare", "Education", "Public Safety"],
         "expertise_keywords": [
             "ai", "iot", "smart cities", "telemedicine", "traffic", "sensors",
@@ -134,6 +137,7 @@ UNIVERSITIES = [
     {
         "id": "u4",
         "name": "National Institute of Technology (NIT) Jamshedpur",
+        "state": "Jharkhand",
         "primary_domains": ["Urban Infrastructure", "Environment", "Water Management"],
         "expertise_keywords": [
             "waste management", "water treatment", "concrete", "structural safety",
@@ -146,6 +150,7 @@ UNIVERSITIES = [
     {
         "id": "u5",
         "name": "AIIMS Deoghar / RIMS Ranchi Medical Consortium",
+        "state": "Jharkhand",
         "primary_domains": ["Healthcare", "Public Safety"],
         "expertise_keywords": [
             "malnutrition", "sickle cell", "anemia", "malaria", "tuberculosis",
@@ -158,6 +163,7 @@ UNIVERSITIES = [
     {
         "id": "u6",
         "name": "Central University of Jharkhand (CUJ), Ranchi",
+        "state": "Jharkhand",
         "primary_domains": ["Environment", "Education", "Rural Livelihoods"],
         "expertise_keywords": [
             "forest", "wildlife", "climate", "solar microgrid", "tribal languages",
@@ -170,6 +176,7 @@ UNIVERSITIES = [
     {
         "id": "u7",
         "name": "Xavier Institute of Social Service (XISS), Ranchi",
+        "state": "Jharkhand",
         "primary_domains": ["Rural Livelihoods", "Education"],
         "expertise_keywords": [
             "shg", "handicrafts", "e-commerce", "migration", "market linkages",
