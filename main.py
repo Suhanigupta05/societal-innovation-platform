@@ -6,7 +6,7 @@ Built with FastAPI, Scikit-Learn, and SQLite.
 import os
 import shutil
 import json
-from typing import Optional, List
+from typing import Optional, List, Tuple
 from fastapi import FastAPI, Request, Form, File, UploadFile, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -41,13 +41,60 @@ os.makedirs(UPLOADS_DIR, exist_ok=True)
 os.makedirs(STATIC_DIR, exist_ok=True)
 os.makedirs(TEMPLATES_DIR, exist_ok=True)
 
+# Nationwide Location Data & Validation Cache
+LOCATIONS_PATH = os.path.join(BASE_DIR, "app", "india_locations.json")
+ALL_LOCATIONS = []
+STATE_DISTRICT_MAP = {}
+STATE_CODES = {
+    "Andhra Pradesh": "AP", "Arunachal Pradesh": "AR", "Assam": "AS", "Bihar": "BR",
+    "Chhattisgarh": "CG", "Goa": "GA", "Gujarat": "GJ", "Haryana": "HR",
+    "Himachal Pradesh": "HP", "Jharkhand": "JH", "Karnataka": "KA", "Kerala": "KL",
+    "Madhya Pradesh": "MP", "Maharashtra": "MH", "Manipur": "MN", "Meghalaya": "ML",
+    "Mizoram": "MZ", "Nagaland": "NL", "Odisha": "OD", "Punjab": "PB",
+    "Rajasthan": "RJ", "Sikkim": "SK", "Tamil Nadu": "TN", "Telangana": "TG",
+    "Tripura": "TR", "Uttar Pradesh": "UP", "Uttarakhand": "UK", "West Bengal": "WB",
+    "Andaman and Nicobar Islands": "AN", "Chandigarh": "CH",
+    "Dadra and Nagar Haveli and Daman and Diu": "DD", "Delhi": "DL",
+    "Jammu and Kashmir": "JK", "Ladakh": "LA", "Lakshadweep": "LD", "Puducherry": "PY"
+}
+
+if os.path.exists(LOCATIONS_PATH):
+    with open(LOCATIONS_PATH, "r", encoding="utf-8") as f:
+        loc_data = json.load(f)
+        ALL_LOCATIONS = loc_data.get("states", [])
+        for s in ALL_LOCATIONS:
+            STATE_DISTRICT_MAP[s["name"].lower()] = (s["name"], set(d.lower() for d in s.get("districts", [])))
+
+def resolve_and_validate_location(state: Optional[str], district: Optional[str]) -> Tuple[str, str]:
+    """Validate and normalize state & district with backward compatibility for legacy inputs."""
+    state_in = (state or "").strip()
+    dist_in = (district or "").strip()
+
+    matched_state = None
+    if state_in:
+        for s_lower, (s_name, _) in STATE_DISTRICT_MAP.items():
+            if state_in.lower() == s_lower:
+                matched_state = s_name
+                break
+
+    # If state is omitted or not directly matched, infer from known district
+    if not matched_state and dist_in:
+        for s_lower, (s_name, dist_set) in STATE_DISTRICT_MAP.items():
+            if dist_in.lower() in dist_set:
+                matched_state = s_name
+                break
+
+    final_state = matched_state or state_in or "Jharkhand"
+    final_district = dist_in or "General"
+    return final_state, final_district
+
 # Initialize database
 init_db()
 
 app = FastAPI(
     title="Societal Innovation Collaboration Platform",
-    description="AI-driven demand matching and project lifecycle platform for societal challenges.",
-    version="1.0.0"
+    description="AI-driven demand matching and project lifecycle platform for societal challenges across India.",
+    version="1.1.0"
 )
 
 app.add_middleware(
@@ -69,6 +116,7 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 class AnalyzeRequest(BaseModel):
     title: str
     description: str
+    state: Optional[str] = "Jharkhand"
     district: Optional[str] = ""
     urgency: Optional[str] = "Medium"
     impact: Optional[str] = "Community"
@@ -77,6 +125,7 @@ class AnalyzeRequest(BaseModel):
 class ProblemCreateRequest(BaseModel):
     title: str
     description: str
+    state: Optional[str] = "Jharkhand"
     district: str
     locality: Optional[str] = ""
     citizen_name: Optional[str] = "Anonymous Citizen"
@@ -114,11 +163,17 @@ async def serve_index(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"domains": DOMAINS, "universities": UNIVERSITIES}
+        context={"domains": DOMAINS, "universities": UNIVERSITIES, "locations": ALL_LOCATIONS}
     )
 
 
 # API Endpoints
+@app.get("/api/locations")
+def list_locations():
+    """Return all Indian states, UTs, and their official districts."""
+    return {"states": ALL_LOCATIONS}
+
+
 @app.get("/api/universities")
 def list_universities():
     """Return all partnered universities and their expertise profiles."""
@@ -136,13 +191,15 @@ def run_ai_analysis(payload: AnalyzeRequest):
     """
     Live AI inspection endpoint:
     Runs NLP classification, duplicate detection against existing DB,
-    university matching, and priority calculation without saving.
+    nationwide university matching, and priority calculation without saving.
     """
+    state, district = resolve_and_validate_location(payload.state, payload.district)
     existing_problems = get_all_problems()
     result = ai_engine.full_problem_analysis(
         title=payload.title,
         description=payload.description,
-        district=payload.district or "",
+        district=district,
+        state=state,
         reported_urgency=payload.urgency or "Medium",
         population_impact=payload.impact or "Community",
         existing_problems=existing_problems
@@ -151,9 +208,9 @@ def run_ai_analysis(payload: AnalyzeRequest):
 
 
 @app.get("/api/problems")
-def fetch_problems(domain: Optional[str] = None, status: Optional[str] = None):
-    """List all problems with optional filtering."""
-    return get_all_problems(domain=domain, status=status)
+def fetch_problems(domain: Optional[str] = None, status: Optional[str] = None, state: Optional[str] = None):
+    """List all problems with optional filtering by domain, status, or state."""
+    return get_all_problems(domain=domain, status=status, state=state)
 
 
 @app.get("/api/problems/{problem_id}")
@@ -171,18 +228,21 @@ def fetch_problem_detail(problem_id: str):
 
 @app.post("/api/problems")
 async def create_problem_json(payload: ProblemCreateRequest):
-    """Submit a problem via JSON."""
+    """Submit a problem via JSON with nationwide support."""
+    state, district = resolve_and_validate_location(payload.state, payload.district)
     existing_problems = get_all_problems()
 
-    # Generate sequential ID
+    # Generate sequential ID with state prefix (JH for Jharkhand, JK for J&K, etc.)
     problem_number = len(existing_problems) + 1
-    new_id = f"JH-2026-{problem_number:03d}"
+    state_code = STATE_CODES.get(state, "JH" if state == "Jharkhand" else "IND")
+    new_id = f"{state_code}-2026-{problem_number:03d}"
 
-    # Full AI Pipeline
+    # Full AI Pipeline with nationwide location awareness
     analysis = ai_engine.full_problem_analysis(
         title=payload.title,
         description=payload.description,
-        district=payload.district,
+        district=district,
+        state=state,
         reported_urgency=payload.urgency,
         population_impact=payload.impact,
         existing_problems=existing_problems
@@ -194,7 +254,8 @@ async def create_problem_json(payload: ProblemCreateRequest):
         "id": new_id,
         "title": payload.title,
         "description": payload.description,
-        "district": payload.district,
+        "state": state,
+        "district": district,
         "locality": payload.locality,
         "citizen_name": payload.citizen_name or "Anonymous Citizen",
         "citizen_contact": payload.citizen_contact or "",
@@ -221,6 +282,7 @@ async def create_problem_with_upload(
     title: str = Form(...),
     description: str = Form(...),
     district: str = Form(...),
+    state: Optional[str] = Form("Jharkhand"),
     locality: Optional[str] = Form(""),
     citizen_name: Optional[str] = Form("Anonymous Citizen"),
     citizen_contact: Optional[str] = Form(""),
@@ -228,10 +290,12 @@ async def create_problem_with_upload(
     impact: Optional[str] = Form("Community"),
     file: Optional[UploadFile] = File(None)
 ):
-    """Submit problem with optional evidence photo/document file."""
+    """Submit problem with optional evidence photo/document file across India."""
+    resolved_state, resolved_district = resolve_and_validate_location(state, district)
     existing_problems = get_all_problems()
     problem_number = len(existing_problems) + 1
-    new_id = f"JH-2026-{problem_number:03d}"
+    state_code = STATE_CODES.get(resolved_state, "JH" if resolved_state == "Jharkhand" else "IND")
+    new_id = f"{state_code}-2026-{problem_number:03d}"
 
     saved_filename = ""
     if file and file.filename:
@@ -244,7 +308,8 @@ async def create_problem_with_upload(
     analysis = ai_engine.full_problem_analysis(
         title=title,
         description=description,
-        district=district,
+        district=resolved_district,
+        state=resolved_state,
         reported_urgency=urgency,
         population_impact=impact,
         existing_problems=existing_problems
@@ -256,7 +321,8 @@ async def create_problem_with_upload(
         "id": new_id,
         "title": title,
         "description": description,
-        "district": district,
+        "state": resolved_state,
+        "district": resolved_district,
         "locality": locality,
         "citizen_name": citizen_name or "Anonymous Citizen",
         "citizen_contact": citizen_contact or "",
