@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Societal Innovation Collaboration Platform | MDC-AI-501</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Custom Styling -->
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans">
+
+  <!-- TOP HEADER -->
+  <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-lg sticky top-0 z-40 border-b border-indigo-800/40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-emerald-500 to-indigo-500 flex items-center justify-center shadow-md shadow-emerald-500/20 text-white font-bold text-xl">
+          <i class="fa-solid fa-hands-holding-circle"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-lg font-bold tracking-tight text-white">Societal Innovation Platform</h1>
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">MDC-AI-501</span>
+          </div>
+          <p class="text-xs text-slate-300">Phase 1 Working Model • PS 26043 • AI-Driven Demand & R&D Matching</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center bg-slate-800/80 p-1 rounded-xl border border-slate-700/60 overflow-x-auto text-xs sm:text-sm font-medium">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn px-3 py-1.5 rounded-lg text-white bg-indigo-600 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Overview</span>
+        </button>
+        <button onclick="switchTab('citizen')" id="nav-citizen" class="tab-btn px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-bullhorn text-amber-400"></i>
+          <span>Report Problem</span>
+        </button>
+        <button onclick="switchTab('university')" id="nav-university" class="tab-btn px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-graduation-cap text-sky-400"></i>
+          <span>University R&D</span>
+        </button>
+        <button onclick="switchTab('industry')" id="nav-industry" class="tab-btn px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-handshake text-emerald-400"></i>
+          <span>Industry / CSR</span>
+        </button>
+        <button onclick="switchTab('viva')" id="nav-viva" class="tab-btn px-3 py-1.5 rounded-lg text-slate-300 hover:text-white transition flex items-center space-x-1.5 bg-gradient-to-r from-purple-900/60 to-pink-900/60 border border-purple-500/40">
+          <i class="fa-solid fa-microchip text-pink-400"></i>
+          <span class="font-bold text-pink-200">AI Viva Inspector</span>
+        </button>
+      </nav>
+
+      <!-- QR Code Share Button -->
+      <button onclick="openQRModal()" class="px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl text-xs font-bold flex items-center space-x-2 shadow-md shadow-emerald-600/30 transition">
+        <i class="fa-solid fa-qrcode text-base"></i>
+        <span>Scan QR Code</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- SUB-BANNER ALERT / SYSTEM STATUS -->
+  <div class="bg-indigo-900/20 border-b border-indigo-200/40 py-2 px-4">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between text-xs text-indigo-950 gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="font-medium">Active AI Pipeline:</span>
+        <span class="text-indigo-800">NLP Domain Classifier (TF-IDF + Calibrated Logistic Regression) • Cosine Duplicate Detection • Multi-Criteria University Matching</span>
+      </div>
+      <div class="flex items-center space-x-3 text-slate-600">
+        <span><i class="fa-solid fa-map-location-dot text-indigo-600 mr-1"></i>Focus: Jharkhand Districts</span>
+        <span class="text-slate-300">|</span>
+        <span class="text-indigo-700 font-semibold cursor-pointer hover:underline" onclick="switchTab('viva')"><i class="fa-solid fa-bolt mr-1"></i>Live AI Explainer Ready</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: GOVERNMENT & OVERVIEW DASHBOARD     -->
+    <!-- ========================================== -->
+    <section id="tab-dashboard" class="tab-content space-y-6">
+      <!-- KPI Stats Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Reported Problems</p>
+            <h3 id="stat-total-problems" class="text-2xl font-extrabold text-slate-900 mt-1">--</h3>
+            <p class="text-xs text-emerald-600 font-medium mt-1"><i class="fa-solid fa-check-double mr-1"></i>100% AI Screened</p>
+          </div>
+          <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa-solid fa-clipboard-list"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">University R&D Solutions</p>
+            <h3 id="stat-total-solutions" class="text-2xl font-extrabold text-slate-900 mt-1">--</h3>
+            <p class="text-xs text-sky-600 font-medium mt-1"><i class="fa-solid fa-users mr-1"></i>Multidisciplinary Teams</p>
+          </div>
+          <div class="w-12 h-12 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa-solid fa-lightbulb"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">CSR Capital Pledged</p>
+            <h3 id="stat-total-funds" class="text-2xl font-extrabold text-slate-900 mt-1">₹0</h3>
+            <p class="text-xs text-amber-600 font-medium mt-1"><i class="fa-solid fa-building mr-1"></i>Industry & Startups</p>
+          </div>
+          <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa-solid fa-coins"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Deployments & Resolving</p>
+            <h3 id="stat-total-resolved" class="text-2xl font-extrabold text-slate-900 mt-1">--</h3>
+            <p class="text-xs text-purple-600 font-medium mt-1"><i class="fa-solid fa-award mr-1"></i>Measurable Social Impact</p>
+          </div>
+          <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Domain Trends Chart -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm">Societal Challenge Domains Breakdown</h4>
+              <p class="text-xs text-slate-500">Categorized automatically via NLP Multi-class Classifier</p>
+            </div>
+            <span class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-600 font-medium">NLP Classified</span>
+          </div>
+          <div class="h-64">
+            <canvas id="domainChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Priority & Urgency Distribution Chart -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm">Urgency & Priority Index</h4>
+              <p class="text-xs text-slate-500">Heuristic + NLP Severity Analysis</p>
+            </div>
+            <span class="text-xs bg-red-50 text-red-700 px-2 py-1 rounded font-medium border border-red-200">Severity</span>
+          </div>
+          <div class="h-64 flex items-center justify-center">
+            <canvas id="priorityChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Problem Lifecycle Pipeline / Feed -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Active Societal Problems Registry</h3>
+            <p class="text-xs text-slate-500">Track issues from citizen submission through AI allocation to solution deployment.</p>
+          </div>
+
+          <!-- Filters -->
+          <div class="flex items-center space-x-2 text-xs">
+            <select id="filter-domain" onchange="loadProblems()" class="border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              <option value="All">All Domains</option>
+              {% for d in domains %}
+              <option value="{{ d }}">{{ d }}</option>
+              {% endfor %}
+            </select>
+
+            <select id="filter-status" onchange="loadProblems()" class="border border-slate-300 rounded-lg px-2.5 py-1.5 bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              <option value="All">All Statuses</option>
+              <option value="Submitted">Submitted</option>
+              <option value="AI_Screened">AI Screened</option>
+              <option value="Assigned_University">Assigned to University</option>
+              <option value="Solution_Proposed">Solution Proposed</option>
+              <option value="Industry_Funded">Industry Funded</option>
+              <option value="In_Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+
+            <button onclick="switchTab('citizen')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-3 py-1.5 rounded-lg flex items-center space-x-1 transition shadow-sm">
+              <i class="fa-solid fa-plus text-xs"></i>
+              <span>Report Issue</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Problems Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">ID / Date</th>
+                <th class="px-4 py-3">Problem Title & Location</th>
+                <th class="px-4 py-3">AI Domain & Confidence</th>
+                <th class="px-4 py-3">Priority Level</th>
+                <th class="px-4 py-3">Assigned University</th>
+                <th class="px-4 py-3">Lifecycle Status</th>
+                <th class="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="problems-table-body" class="divide-y divide-slate-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: CITIZEN SUBMISSION PORTAL          -->
+    <!-- ========================================== -->
+    <section id="tab-citizen" class="tab-content hidden space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        <div class="max-w-3xl">
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">Citizen Interface</span>
+          <h2 class="text-2xl font-extrabold text-slate-900 mt-2">Submit a Community or Societal Problem</h2>
+          <p class="text-sm text-slate-600 mt-1">
+            Citizens, local panchayats, and NGOs can report ground challenges with photos and location. Our AI engine automatically classifies the domain, flags duplicates, determines priority, and routes the issue to specialized academic researchers.
+          </p>
+        </div>
+
+        <form id="problem-form" class="mt-8 space-y-6" onsubmit="submitCitizenProblem(event)">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Problem Title -->
+            <div class="md:col-span-2">
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Problem Title <span class="text-red-500">*</span></label>
+              <input type="text" id="p-title" required placeholder="e.g., Heavy fluoride contamination in community borewells causing fluorosis" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+            </div>
+
+            <!-- Problem Description -->
+            <div class="md:col-span-2">
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs font-bold text-slate-700 uppercase">Detailed Description & Evidence Context <span class="text-red-500">*</span></label>
+                <button type="button" onclick="triggerInstantAIPreview()" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center space-x-1">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                  <span>Test AI Analysis Preview</span>
+                </button>
+              </div>
+              <textarea id="p-description" rows="4" required placeholder="Describe the ground reality: What is happening? Who is affected? What are the immediate risks? Mention key keywords (e.g., arsenic, soil acidity, bridge damage, dropout rate)..." class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"></textarea>
+            </div>
+
+            <!-- District Selection (Jharkhand Focus) -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">District (Jharkhand) <span class="text-red-500">*</span></label>
+              <select id="p-district" required class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                <option value="Ranchi">Ranchi</option>
+                <option value="Palamu">Palamu</option>
+                <option value="Dhanbad">Dhanbad</option>
+                <option value="East Singhbhum">East Singhbhum (Jamshedpur)</option>
+                <option value="Bokaro">Bokaro</option>
+                <option value="Deoghar">Deoghar</option>
+                <option value="Hazaribagh">Hazaribagh</option>
+                <option value="Khunti">Khunti</option>
+                <option value="Gumla">Gumla</option>
+                <option value="Latehar">Latehar</option>
+                <option value="Dumka">Dumka</option>
+                <option value="Sahibganj">Sahibganj</option>
+                <option value="Garhwa">Garhwa</option>
+                <option value="Simdega">Simdega</option>
+                <option value="West Singhbhum">West Singhbhum (Chaibasa)</option>
+              </select>
+            </div>
+
+            <!-- Locality / Block / Village -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Block / Village / Locality</label>
+              <input type="text" id="p-locality" placeholder="e.g., Patan Block, Village Khaira" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+            </div>
+
+            <!-- Citizen Urgency Rating -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Citizen Perceived Urgency</label>
+              <select id="p-urgency" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                <option value="Medium">Medium - Persistent problem</option>
+                <option value="High">High - Significant ongoing hazard</option>
+                <option value="Critical">Critical - Acute danger to health/life</option>
+                <option value="Low">Low - Improvement opportunity</option>
+              </select>
+            </div>
+
+            <!-- Population Scale -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Scale of Affected Population</label>
+              <select id="p-impact" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                <option value="Village / Town Ward">Village / Town Ward (~500 - 3,000 people)</option>
+                <option value="Multiple Villages / Block">Multiple Villages / Block (10,000+ people)</option>
+                <option value="Entire District">Entire District / Regional Corridor</option>
+                <option value="Community">Local Community / Hamlets</option>
+                <option value="Individual / Single Facility">Individual / Single Facility (School/Hospital)</option>
+              </select>
+            </div>
+
+            <!-- Citizen Name -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Reporter / Submitter Name</label>
+              <input type="text" id="p-name" placeholder="e.g., Ramesh Murmu (Farmer Representative)" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+            </div>
+
+            <!-- Citizen Contact -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Contact Email / Phone</label>
+              <input type="text" id="p-contact" placeholder="e.g., ramesh.murmu@jharkhand.in" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+            </div>
+
+            <!-- Evidence Photo / Doc Upload -->
+            <div class="md:col-span-2">
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Photo / Document Evidence (Optional)</label>
+              <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition cursor-pointer">
+                <input type="file" id="p-file" accept="image/*,.pdf,.doc,.docx" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                <p class="text-[11px] text-slate-400 mt-1">Upload JPEG, PNG photos of water source, farmland, classroom, or road damage.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- LIVE AI REAL-TIME SCREENING FEEDBACK CARD -->
+          <div id="ai-preview-box" class="hidden p-5 rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50/70 to-slate-50 transition">
+            <div class="flex items-center justify-between pb-3 border-b border-indigo-200/60">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-brain text-indigo-600 text-lg"></i>
+                <h4 class="font-bold text-indigo-950 text-sm">Real-time AI Screening Preview</h4>
+              </div>
+              <span id="preview-badge" class="px-2.5 py-1 text-xs font-bold rounded-full bg-indigo-600 text-white">AI Evaluated</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 text-xs">
+              <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <p class="text-slate-500 font-medium">Predicted Domain</p>
+                <p id="preview-domain" class="font-bold text-slate-900 text-sm mt-0.5">--</p>
+                <p id="preview-confidence" class="text-indigo-600 font-semibold mt-0.5">Confidence: --%</p>
+              </div>
+
+              <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <p class="text-slate-500 font-medium">Duplicate / Similarity Check</p>
+                <p id="preview-duplicate" class="font-bold text-slate-900 text-sm mt-0.5">--</p>
+                <p id="preview-duplicate-sub" class="text-slate-500 mt-0.5">Cosine Similarity Score: --</p>
+              </div>
+
+              <div class="bg-white p-3 rounded-lg border border-slate-200">
+                <p class="text-slate-500 font-medium">Recommended Institution</p>
+                <p id="preview-university" class="font-bold text-slate-900 text-sm mt-0.5">--</p>
+                <p id="preview-uni-sub" class="text-emerald-600 font-semibold mt-0.5">Affinity Score: --%</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-200">
+            <button type="reset" class="px-5 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 transition">Reset</button>
+            <button type="submit" id="submit-btn" class="px-7 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-md shadow-emerald-600/20 flex items-center space-x-2 transition">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Submit Societal Challenge</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: UNIVERSITY R&D PORTAL               -->
+    <!-- ========================================== -->
+    <section id="tab-university" class="tab-content hidden space-y-6">
+      <!-- University Header / Selector -->
+      <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-600 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200">Academic & R&D Hub</span>
+          <h2 class="text-2xl font-extrabold text-slate-900 mt-1">University Innovation & Project Lifecycle</h2>
+          <p class="text-xs text-slate-500 mt-1">Review AI-routed community challenges, assign faculty leads, form multidisciplinary student teams, and submit solutions.</p>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <label class="text-xs font-semibold text-slate-600">Simulate University View:</label>
+          <select id="university-filter-select" onchange="renderUniversityPortal()" class="border border-slate-300 rounded-lg px-3 py-2 text-xs bg-white text-slate-800 font-medium focus:ring-2 focus:ring-sky-500">
+            {% for u in universities %}
+            <option value="{{ u.id }}">{{ u.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- University Profile Banner -->
+      <div id="university-profile-card" class="bg-gradient-to-r from-sky-900 to-indigo-950 text-white rounded-xl p-5 shadow-sm">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- University Content Split: Assigned Challenges vs In-Progress Solutions -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Assigned / Recommended Societal Challenges -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col">
+          <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-200">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm">Matched Societal Challenges</h3>
+              <p class="text-xs text-slate-500">Problems routed by AI based on faculty expertise & district</p>
+            </div>
+            <span id="uni-challenge-count" class="px-2 py-0.5 rounded text-xs font-bold bg-sky-100 text-sky-800">0 Challenges</span>
+          </div>
+
+          <div id="uni-assigned-challenges-list" class="space-y-3 overflow-y-auto max-h-[500px] flex-grow">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Solutions & Milestones Tracker -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col">
+          <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-200">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm">University Innovation Projects & Milestones</h3>
+              <p class="text-xs text-slate-500">Active prototypes, testing, and lifecycle deliverables</p>
+            </div>
+            <span id="uni-project-count" class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800">0 Projects</span>
+          </div>
+
+          <div id="uni-solutions-list" class="space-y-4 overflow-y-auto max-h-[500px] flex-grow">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: INDUSTRY & CSR COLLABORATION PORTAL -->
+    <!-- ========================================== -->
+    <section id="tab-industry" class="tab-content hidden space-y-6">
+      <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+        <div class="max-w-3xl">
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">Industry • Startups • MSMEs • CSR</span>
+          <h2 class="text-2xl font-extrabold text-slate-900 mt-1">Demand-Driven Corporate Co-Creation</h2>
+          <p class="text-xs text-slate-600 mt-1">
+            Industries (Tata Steel, CCL, Jindal, local startups) support university research solutions through CSR funding, prototyping lab facilities, technical mentorship, and pilot deployment testing.
+          </p>
+        </div>
+      </div>
+
+      <!-- Active Innovation Projects Seeking Support -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-4">
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+            <h3 class="font-bold text-slate-900 text-sm mb-1">Validated University Projects Seeking CSR / Industry Support</h3>
+            <p class="text-xs text-slate-500 mb-4">Browse technical solutions developed by student researchers and pledge grant capital or mentoring.</p>
+
+            <div id="industry-projects-list" class="space-y-4">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Corporate CSR Log & Sponsors -->
+        <div class="space-y-4">
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+            <h3 class="font-bold text-slate-900 text-sm mb-1">Recent CSR Pledges & Mentors</h3>
+            <p class="text-xs text-slate-500 mb-4">Committed corporate capital and technical guides</p>
+
+            <div id="industry-pledges-list" class="space-y-3">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 5: AI VIVA DEMONSTRATION INSPECTOR    -->
+    <!-- (SPECIAL COLLEGE DEMO & EXAMINER MODE)     -->
+    <!-- ========================================== -->
+    <section id="tab-viva" class="tab-content hidden space-y-6">
+      <!-- Viva Hero -->
+      <div class="bg-gradient-to-r from-purple-950 via-indigo-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-xl border border-purple-500/30">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="px-2.5 py-1 text-xs font-bold rounded-md bg-pink-500/30 text-pink-300 border border-pink-400/40">COLLEGE DEMO & VIVA SUITE</span>
+              <span class="text-xs text-slate-400">Course: MDC-AI-501 | Problem 26043</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-2">AI / ML Engine Live Inspector</h2>
+            <p class="text-sm text-slate-300 max-w-2xl mt-1">
+              Use this interactive laboratory to explain the exact mathematical steps of the AI pipeline to project evaluators: Feature Extraction (TF-IDF), Domain Classification Probabilities, Cosine Similarity Duplicate Matching, and University Affinity Scoring.
+            </p>
+          </div>
+          <button onclick="toggleVivaGuideModal()" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold rounded-xl shadow-lg flex items-center space-x-2 transition">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>Open Viva Question & Answer Guide</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Interactive AI Inspector Playground -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Input Panel -->
+        <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+            <h3 class="font-bold text-slate-900 text-sm">1. Input Test Problem Statement</h3>
+            <span class="text-xs text-purple-600 font-semibold">Live Sandbox</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Select Preset Sample or Type Custom</label>
+            <select id="viva-sample-select" onchange="loadVivaPreset()" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg bg-slate-50 font-medium">
+              <option value="custom">-- Custom Input (Type Below) --</option>
+              <option value="water">Water: Fluoride Contamination in Palamu Wells</option>
+              <option value="agri">Agriculture: Paddy Crop Fungal Blast Outbreak in Bero</option>
+              <option value="health">Healthcare: Sickle Cell Anemia Screening Shortage in Deoghar</option>
+              <option value="edu">Education: Girl Students Dropping Out Due to Lack of Toilets</option>
+              <option value="env">Environment: Fly Ash Runoff from Power Plant Polluting Rivers</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Problem Title</label>
+            <input type="text" id="viva-title" value="Groundwater Fluoride Contamination in Palamu" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Problem Description</label>
+            <textarea id="viva-desc" rows="4" class="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg">High fluoride levels in borewell drinking water causing dental and skeletal fluorosis among rural children in Palamu district. Need community water filtration plant.</textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">District</label>
+              <select id="viva-district" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+                <option value="Palamu">Palamu</option>
+                <option value="Ranchi">Ranchi</option>
+                <option value="Dhanbad">Dhanbad</option>
+                <option value="East Singhbhum">East Singhbhum</option>
+                <option value="Deoghar">Deoghar</option>
+                <option value="Khunti">Khunti</option>
+                <option value="Bokaro">Bokaro</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Reported Urgency</label>
+              <select id="viva-urgency" class="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg bg-white">
+                <option value="Critical">Critical</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="executeVivaAIInspection()" class="w-full py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-play"></i>
+            <span>Execute AI Model Pipeline</span>
+          </button>
+        </div>
+
+        <!-- AI Output & Explanations Panel -->
+        <div class="lg:col-span-7 space-y-5">
+          <!-- Step A: TF-IDF Feature Extraction -->
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200 mb-3">
+              <h4 class="font-bold text-slate-900 text-xs flex items-center space-x-2">
+                <span class="w-5 h-5 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-[10px] font-bold">1</span>
+                <span>NLP Vectorization & Top TF-IDF Terms (\(w_i = \text{TF} \times \text{IDF}\))</span>
+              </h4>
+              <span class="text-[11px] text-slate-500 font-mono">N-gram (1,2)</span>
+            </div>
+            <div id="viva-features-container" class="flex flex-wrap gap-1.5">
+              <!-- Feature badges -->
+            </div>
+          </div>
+
+          <!-- Step B: Multiclass Classification Probability Distribution -->
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200 mb-3">
+              <h4 class="font-bold text-slate-900 text-xs flex items-center space-x-2">
+                <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[10px] font-bold">2</span>
+                <span>Calibrated Domain Classification Probabilities (\(P(C_k \mid X)\))</span>
+              </h4>
+              <span id="viva-top-domain-badge" class="px-2 py-0.5 text-xs font-bold rounded bg-emerald-100 text-emerald-800">Predicted: --</span>
+            </div>
+            <div class="h-44">
+              <canvas id="vivaProbChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Step C: Duplicate Detection & Cosine Similarity -->
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200 mb-3">
+              <h4 class="font-bold text-slate-900 text-xs flex items-center space-x-2">
+                <span class="w-5 h-5 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-[10px] font-bold">3</span>
+                <span>Semantic Similarity & Duplicate Detection (\(\cos(\theta) = \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\|\|\mathbf{v}\|}\))</span>
+              </h4>
+              <span id="viva-duplicate-status-badge" class="px-2 py-0.5 text-xs font-bold rounded bg-slate-100 text-slate-700">Checking...</span>
+            </div>
+            <div id="viva-similarity-list" class="space-y-2 text-xs">
+              <!-- Matched duplicates -->
+            </div>
+          </div>
+
+          <!-- Step D: University & Expert Matching Scoring Matrix -->
+          <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200 mb-3">
+              <h4 class="font-bold text-slate-900 text-xs flex items-center space-x-2">
+                <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">4</span>
+                <span>Multi-Criteria Institutional Matching Matrix</span>
+              </h4>
+              <span class="text-[11px] text-slate-400">Domain (45%) + Research (40%) + Proximity (15%)</span>
+            </div>
+            <div id="viva-university-matrix" class="space-y-2 text-xs">
+              <!-- Ranked universities -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODALS                                     -->
+  <!-- ========================================== -->
+
+  <!-- Modal: Problem Details & Lifecycle -->
+  <div id="modal-problem" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <div>
+          <span id="modal-p-domain" class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800">Domain</span>
+          <span id="modal-p-id" class="text-xs font-mono text-slate-500 ml-2">JH-2026-000</span>
+        </div>
+        <button onclick="closeProblemModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+
+      <div class="mt-4 space-y-4">
+        <div>
+          <h3 id="modal-p-title" class="text-xl font-extrabold text-slate-900">Title</h3>
+          <p id="modal-p-location" class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-location-dot mr-1 text-red-500"></i>Location</p>
+        </div>
+
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-1">
+          <p class="font-semibold text-slate-800">Problem Description:</p>
+          <p id="modal-p-desc" class="leading-relaxed">Description goes here</p>
+        </div>
+
+        <!-- Evidence photo preview if exists -->
+        <div id="modal-p-media-container" class="hidden">
+          <p class="text-xs font-semibold text-slate-700 mb-1">Attached Evidence:</p>
+          <img id="modal-p-media-img" src="" alt="Evidence" class="max-h-48 rounded-lg border border-slate-200 object-cover">
+        </div>
+
+        <!-- AI Screening Breakdown -->
+        <div class="bg-indigo-50/70 p-4 rounded-xl border border-indigo-200 text-xs space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-indigo-950 flex items-center space-x-1.5">
+              <i class="fa-solid fa-brain text-indigo-600"></i>
+              <span>AI Screening Analysis</span>
+            </span>
+            <span id="modal-p-priority" class="px-2 py-0.5 font-bold rounded text-white bg-red-600">PRIORITY</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-slate-700 pt-1">
+            <p><strong>Predicted Category:</strong> <span id="modal-p-category-val">--</span></p>
+            <p><strong>Confidence:</strong> <span id="modal-p-conf-val">--%</span></p>
+            <p><strong>Priority Score:</strong> <span id="modal-p-prio-score">--/100</span></p>
+            <p><strong>Assigned Academic Partner:</strong> <span id="modal-p-assigned-val" class="font-semibold text-indigo-900">--</span></p>
+          </div>
+        </div>
+
+        <!-- University Assignment Action -->
+        <div class="pt-3 border-t border-slate-200">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Assign / Re-Route to University</label>
+          <div class="flex space-x-2">
+            <select id="modal-assign-uni-select" class="flex-grow px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white">
+              {% for u in universities %}
+              <option value="{{ u.id }}" data-name="{{ u.name }}">{{ u.name }}</option>
+              {% endfor %}
+            </select>
+            <button onclick="submitAssignmentFromModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition">
+              Assign University
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Submit University Solution Proposal -->
+  <div id="modal-solution-form" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-600 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">University R&D</span>
+          <h3 class="text-lg font-bold text-slate-900 mt-1">Submit Innovation Proposal</h3>
+        </div>
+        <button onclick="closeSolutionModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+
+      <form id="solution-proposal-form" onsubmit="submitUniversityProposal(event)" class="mt-4 space-y-4 text-xs">
+        <input type="hidden" id="sol-problem-id">
+        <input type="hidden" id="sol-uni-id">
+        <input type="hidden" id="sol-uni-name">
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Target Societal Problem</label>
+          <input type="text" id="sol-problem-title-display" readonly class="w-full px-3 py-2 border border-slate-200 bg-slate-100 rounded-lg text-slate-600">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Innovation / Solution Title <span class="text-red-500">*</span></label>
+          <input type="text" id="sol-title" required placeholder="e.g., Solar-Powered Low-Cost Defluoridation Filter" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Lead Faculty / Mentor</label>
+            <input type="text" id="sol-faculty" placeholder="e.g., Dr. A. K. Mishra" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Student Team Name</label>
+            <input type="text" id="sol-team" placeholder="e.g., Team Jal-Mitra (4 students)" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Proposal Summary & Expected Outcome <span class="text-red-500">*</span></label>
+          <textarea id="sol-summary" rows="3" required placeholder="Outline the proposed solution, working principle, and measurable societal impact..." class="w-full px-3 py-2 border border-slate-300 rounded-lg"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Estimated Budget (INR ₹)</label>
+            <input type="number" id="sol-budget" value="250000" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Timeline (Months)</label>
+            <input type="number" id="sol-timeline" value="6" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
+          <button type="button" onclick="closeSolutionModal()" class="px-4 py-2 text-slate-600 font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg shadow transition">
+            Submit Proposal
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Pledge CSR / Industry Support -->
+  <div id="modal-industry-pledge" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Corporate & Startup CSR</span>
+          <h3 class="text-lg font-bold text-slate-900 mt-1">Pledge Support for Societal Solution</h3>
+        </div>
+        <button onclick="closeIndustryModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+
+      <form id="industry-pledge-form" onsubmit="submitIndustryPledge(event)" class="mt-4 space-y-4 text-xs">
+        <input type="hidden" id="pledge-problem-id">
+        <input type="hidden" id="pledge-solution-id">
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Supporting Project</label>
+          <input type="text" id="pledge-project-name" readonly class="w-full px-3 py-2 border border-slate-200 bg-slate-100 rounded-lg text-slate-600">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Company / Organization Name <span class="text-red-500">*</span></label>
+          <input type="text" id="pledge-company" required placeholder="e.g., Tata Steel Foundation / Central Coalfields / Tech Startup" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Support Type</label>
+            <select id="pledge-type" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white">
+              <option value="CSR Capital Grant">CSR Capital Grant</option>
+              <option value="Hardware & Prototyping Lab">Hardware & Prototyping Lab</option>
+              <option value="Technical Mentorship">Technical Mentorship</option>
+              <option value="Pilot Testing Deployment">Pilot Testing Deployment</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 uppercase mb-1">Pledge Amount (₹)</label>
+            <input type="number" id="pledge-amount" value="300000" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 uppercase mb-1">Assigned Industry Mentor</label>
+          <input type="text" id="pledge-mentor" placeholder="e.g., Senior Principal Engineer, CSR Lead" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
+          <button type="button" onclick="closeIndustryModal()" class="px-4 py-2 text-slate-600 font-semibold">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow transition">
+            Confirm CSR Pledge
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Viva Question & Answer Guide -->
+  <div id="modal-viva-guide" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-pink-600 bg-pink-50 px-2.5 py-1 rounded-md border border-pink-200">College Viva Guide</span>
+          <h3 class="text-xl font-extrabold text-slate-900 mt-1">Frequently Asked Viva Questions & Model Answers</h3>
+        </div>
+        <button onclick="toggleVivaGuideModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+
+      <div class="mt-4 space-y-4 text-xs text-slate-700 leading-relaxed">
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <p class="font-bold text-slate-900 text-sm">Q1. What is the core problem statement of this project?</p>
+          <p class="mt-1 text-slate-600">
+            <strong>Answer:</strong> Rural and urban communities across Jharkhand face pressing challenges (clean water, agriculture disease, healthcare access, education dropout), but lack a direct platform to connect with academic research talent and corporate funding. This platform automates the pipeline using AI: Citizens submit problems &rarr; AI categorizes, filters duplicates, and routes to suitable universities &rarr; University teams build prototypes &rarr; Industries fund via CSR.
+          </p>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <p class="font-bold text-slate-900 text-sm">Q2. What Machine Learning & NLP algorithms are used?</p>
+          <p class="mt-1 text-slate-600">
+            <strong>Answer:</strong>
+            <ul class="list-disc pl-5 mt-1 space-y-1">
+              <li><strong>Text Vectorization:</strong> TF-IDF (Term Frequency - Inverse Document Frequency) with unigram and bigram n-grams, stop-word removal, and sublinear scaling.</li>
+              <li><strong>Domain Classification:</strong> Calibrated Multi-class Logistic Regression yielding posterior class probabilities for 8 societal domains.</li>
+              <li><strong>Duplicate Detection:</strong> Cosine Similarity metric (\(\frac{A \cdot B}{\|A\| \|B\|}\)) comparing incoming submissions with existing database vectors. Thresholds: &ge;65% (Duplicate), 35-64% (Related).</li>
+              <li><strong>Institutional Matching:</strong> Multi-Criteria Decision Analysis (MCDA) combining Domain Alignment (45%), Research Keyword Overlap (40%), and Regional Proximity (15%).</li>
+            </ul>
+          </p>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <p class="font-bold text-slate-900 text-sm">Q3. Why is SQLite + FastAPI used instead of heavyweight databases?</p>
+          <p class="mt-1 text-slate-600">
+            <strong>Answer:</strong> FastAPI provides asynchronous, high-throughput REST APIs with automatic OpenAPI/Swagger documentation. SQLite gives an ACID-compliant, zero-configuration local database that guarantees self-contained reliability during demonstration without external server dependencies.
+          </p>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <p class="font-bold text-slate-900 text-sm">Q4. How does the duplicate detection protect against spam and redundancy?</p>
+          <p class="mt-1 text-slate-600">
+            <strong>Answer:</strong> When multiple citizens in the same village report the same problem (e.g. broken chlorination pump), instead of creating duplicate fragmented projects, the AI detects cosine similarity &gt; 65%, groups them under a single problem cluster, and increases the priority score (+5 pts per report) because it indicates community-wide impact!
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-5 text-right">
+        <button onclick="toggleVivaGuideModal()" class="px-5 py-2 bg-slate-800 text-white font-bold text-xs rounded-xl hover:bg-slate-900">
+          Close Guide
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Live QR Code & Share Link -->
+  <div id="modal-qr-share" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div class="flex items-center space-x-2 text-left">
+          <i class="fa-solid fa-mobile-screen-button text-emerald-600 text-lg"></i>
+          <div>
+            <h3 class="font-extrabold text-slate-900 text-sm">Scan with Phone Camera</h3>
+            <p class="text-[11px] text-slate-500">Citizen Mobile Access & Sharing</p>
+          </div>
+        </div>
+        <button onclick="closeQRModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+
+      <!-- Live QR Image Container -->
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 inline-block mb-3">
+        <img id="qr-code-img" src="" alt="QR Code" class="w-48 h-48 mx-auto rounded-lg shadow-sm">
+      </div>
+      <p class="text-xs font-bold text-slate-800">Scan to Open App on Mobile</p>
+      <p class="text-[11px] text-slate-400 mt-0.5">Allows citizens and examiners to test live reporting from their smartphones.</p>
+
+      <!-- URL Input & Copy Button -->
+      <div class="mt-4 pt-3 border-t border-slate-100 text-left">
+        <label class="block text-[11px] font-bold text-slate-600 mb-1">Shareable Link:</label>
+        <div class="flex items-center space-x-2">
+          <input type="text" id="share-link-input" readonly class="flex-grow px-2.5 py-1.5 text-xs bg-slate-100 border border-slate-200 rounded-lg text-slate-700 font-mono truncate">
+          <button onclick="copyShareLink()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1">
+            <i class="fa-solid fa-copy"></i>
+            <span id="copy-btn-text">Copy</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-4 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
+      <p>MDC-AI-501 : Artificial Intelligence and Machines • Societal Innovation Collaboration Platform (PS 26043)</p>
+      <p class="text-slate-400">Powered by FastAPI, Scikit-Learn & Tailwind CSS</p>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript App -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
